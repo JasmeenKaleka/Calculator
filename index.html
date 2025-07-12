@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Calculator</title>
+  <style>
+    :root {
+      --dark: #2d2f3a;
+      --light: #eafcff;
+      --orange: #f89b0f;
+      --pink: #f3708c;
+      --blue: #2196f3;
+      --green: #4caf50;
+      --button-radius: 10px;
+    }
+
+    body {
+      background: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background: var(--dark);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+      max-width: 350px;
+      width: 100%;
+    }
+
+    .display {
+      background: var(--light);
+      color: #000;
+      border-radius: 10px;
+      padding: 10px 15px;
+      text-align: right;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .expression {
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    .result {
+      font-size: 2.2rem;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: var(--button-radius);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      filter: brightness(110%);
+    }
+
+    button:active {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px #fff;
+    }
+
+    .orange { background: var(--orange); color: white; }
+    .pink   { background: var(--pink); color: white; }
+    .blue   { background: var(--blue); color: white; }
+    .green  { background: var(--green); color: white; }
+    .gray   { background: #4a4d5b; color: white; }
+
+    @media (max-width: 400px) {
+      .result {
+        font-size: 1.8rem;
+      }
+      .expression {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <div id="expression" class="expression">0</div>
+      <div id="result" class="result">0</div>
+    </div>
+    <div class="buttons">
+      <button class="orange" onclick="clearMemory()">MC</button>
+      <button class="orange" onclick="recallMemory()">MR</button>
+      <button class="orange" onclick="addMemory()">M+</button>
+      <button class="orange" onclick="subtractMemory()">M-</button>
+      <button class="pink" onclick="clearDisplay()">C</button>
+
+      <button class="gray" onclick="append('7')">7</button>
+      <button class="gray" onclick="append('8')">8</button>
+      <button class="gray" onclick="append('9')">9</button>
+      <button class="blue" onclick="append('/')">÷</button>
+      <button class="blue" onclick="append('-')">-</button>
+
+      <button class="gray" onclick="append('4')">4</button>
+      <button class="gray" onclick="append('5')">5</button>
+      <button class="gray" onclick="append('6')">6</button>
+      <button class="blue" onclick="append('*')">×</button>
+      <button class="blue" onclick="append('+')">+</button>
+
+      <button class="gray" onclick="append('1')">1</button>
+      <button class="gray" onclick="append('2')">2</button>
+      <button class="gray" onclick="append('3')">3</button>
+      <button class="blue" onclick="append('%')">%</button>
+      <button class="blue" onclick="append('√(')">√</button>
+
+      <button class="gray" onclick="append('.')">.</button>
+      <button class="gray" onclick="append('0')">0</button>
+      <button class="blue" onclick="append('(')">(</button>
+      <button class="blue" onclick="append(')')">)</button>
+      <button class="green" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+<script>
+  let expressionDisplay = document.getElementById("expression");
+  let resultDisplay = document.getElementById("result");
+  let memory = 0;
+
+  function append(value) {
+    if (expressionDisplay.textContent === "0") expressionDisplay.textContent = "";
+    if (/\d$/.test(expressionDisplay.textContent) && value === '(') {
+      expressionDisplay.textContent += '*(';
+    } else {
+      expressionDisplay.textContent += value;
+    }
+  }
+
+  function clearDisplay() {
+    expressionDisplay.textContent = "0";
+    resultDisplay.textContent = "0";
+  }
+
+  function calculate() {
+    try {
+      const rawExpr = expressionDisplay.textContent
+  .replace(/÷/g, '/')
+  .replace(/×/g, '*')
+  .replace(/√/g, 'Math.sqrt')
+  .replace(/(\d+(\.\d+)?)%/g, '($1/100)');
+
+      const result = eval(rawExpr);
+      resultDisplay.textContent = new Intl.NumberFormat("en-IN").format(result);
+    } catch {
+      resultDisplay.textContent = "Error";
+    }
+  }
+
+  function clearMemory() {
+    memory = 0;
+  }
+
+  function recallMemory() {
+    append(memory.toString());
+  }
+
+  function addMemory() {
+    try {
+      const expr = expressionDisplay.textContent
+        .replace(/÷/g, '/')
+        .replace(/×/g, '*')
+        .replace(/√/g, 'Math.sqrt');
+      memory += eval(expr);
+      resultDisplay.textContent = "M+";
+    } catch {
+      resultDisplay.textContent = "Error";
+    }
+  }
+
+  function subtractMemory() {
+    try {
+      const expr = expressionDisplay.textContent
+        .replace(/÷/g, '/')
+        .replace(/×/g, '*')
+        .replace(/√/g, 'Math.sqrt');
+      memory -= eval(expr);
+      resultDisplay.textContent = "M-";
+    } catch {
+      resultDisplay.textContent = "Error";
+    }
+  }
+
+  // ✅ Keyboard Support
+  document.addEventListener("keydown", (e) => {
+    const key = e.key;
+
+    if (!isNaN(key) || "+-*/().".includes(key)) {
+      append(key);
+    } else if (key === "Enter") {
+      e.preventDefault();
+      calculate();
+    } else if (key === "Backspace") {
+      expressionDisplay.textContent = expressionDisplay.textContent.slice(0, -1) || "0";
+    } else if (key.toLowerCase() === "c") {
+      clearDisplay();
+    }
+  });
+</script>
+
+</body>
+</html>
